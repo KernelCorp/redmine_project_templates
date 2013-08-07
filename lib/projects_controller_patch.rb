@@ -24,12 +24,15 @@ module ProjectsControllerPatch
              unless params[:closed]
                scope = scope.active
              end
-             @projects = scope.visible.where(is_template: false).order('lft').all
+             @projects = (params[:is_template].nil?)? scope.visible.where(is_template: false).order('lft').all :
+                 scope.visible.where(is_template: true).order('lft').all
            }
            format.api  {
              @offset, @limit = api_offset_and_limit
              @project_count = Project.visible.where(is_template: false).count
-             @projects = Project.visible.where(is_template: false).offset(@offset).limit(@limit).order('lft').all
+             @projects = (params[:is_template].nil?)?
+                 Project.visible.where(is_template: false).offset(@offset).limit(@limit).order('lft').all :
+                 Project.visible.where(is_template: false).offset(@offset).limit(@limit).order('lft').all
            }
            format.atom {
              projects = Project.visible.where(is_template: false).order('created_on DESC').limit(Setting.feeds_limit
