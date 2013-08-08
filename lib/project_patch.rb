@@ -7,6 +7,7 @@ module ProjectPatch
      # Same as typing in the class
     base.class_eval do
       attr_accessor :is_template
+      attr_accessor :start_date
     end
 
   end
