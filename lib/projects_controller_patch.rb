@@ -9,6 +9,8 @@ module ProjectsControllerPatch
     base.send(:include, InstanceMethods)
     base.class_eval do
       alias_method_chain :index, :template_check
+      alias_method_chain :new, :select_templates
+      alias_method_chain :settings, :select_templates
     end
   end
 
@@ -41,6 +43,20 @@ module ProjectsControllerPatch
            }
          end
        end
+
+       def new_with_select_templates
+         @templates = Project.where(:is_template => true)
+         new_without_select_templates
+       end
+
+       def settings_with_select_templates
+         @templates = Project.where(:is_template => true)
+         settings_without_select_templates
+       end
+
+        def gettrue
+          true
+        end
   end
 end
 
