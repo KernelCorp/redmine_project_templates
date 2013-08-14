@@ -63,35 +63,17 @@ module ProjectsControllerPatch
          else
            @issue_custom_fields = IssueCustomField.sorted.all
            @trackers = Tracker.sorted.all
-           @project = Project.new
-           @project.safe_attributes = params[:project]
-
-           if validate_parent_id && @project.save
-             @project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
-             # Add current user as a project member if he is not admin
-             unless User.current.admin?
-               r = Role.givable.find_by_id(Setting.new_project_user_role_id.to_i) || Role.givable.first
-               m = Member.new(:user => User.current, :roles => [r])
-               @project.members << m
-             end
-             respond_to do |format|
-               format.html {
-                 flash[:notice] = l(:notice_successful_create)
-                 if params[:continue]
-                   attrs = {:parent_id => @project.parent_id}.reject {|k,v| v.nil?}
-                   redirect_to new_project_path(attrs)
-                 else
-                   redirect_to settings_project_path(@project)
-                 end
-               }
-               format.api  { render :action => 'show', :status => :created, :location => url_for(:controller => 'projects', :action => 'show', :id => @project.id) }
-             end
-           else
-             respond_to do |format|
-               format.html { render :action => 'new' }
-               format.api  { render_validation_errors(@project) }
-             end
+           begin
+            @source_project = Project.find(params[:project][:template_id])
+           rescue ActiveRecord::RecordNotFound
+             # source_project not found
+             render_404
            end
+
+           @project = Project.copy_from(@source_project)
+           @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
+
+
          end #if
        end
 
