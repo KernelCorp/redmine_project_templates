@@ -15,6 +15,4 @@ Redmine::Plugin.register :project_templates do
 
   menu :top_menu, :templates, { :controller => 'projects', :action => 'index', :is_template => 'true' },
       :caption => 'Templates'
-
-  end
 end
