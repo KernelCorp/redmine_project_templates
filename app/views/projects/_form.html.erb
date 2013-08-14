@@ -12,7 +12,7 @@
   <% end %>
   <p>
     <%= label(:project, :template_id, l(:template)) %>
-    <%= select_tag(:template_id, options_for_select(templates_map)) %>
+    <%= select(:project, :template_id, options_for_select(templates_map)) %>
   </p>
 <% end%>
 <p><%= f.text_area :description, :rows => 8, :class => 'wiki-edit' %></p>
