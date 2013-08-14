@@ -8,6 +8,9 @@ module ProjectPatch
     base.class_eval do
       attr_accessor :is_template
       attr_accessor :start_date
+      belongs_to    :template, class_name: 'Project'
+      has_many :projects, class_name: 'Project',
+               foreign_key: 'template_id'
     end
 
   end
