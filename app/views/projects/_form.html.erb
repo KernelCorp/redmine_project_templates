@@ -1,5 +1,5 @@
 <%= error_messages_for 'project' %>
-
+<%= f.hidden_field :is_template, :value => true%>
 <div class="box tabular">
 <!--[form:project]-->
 <p><%= f.text_field :name, :required => true, :size => 60 %></p>
