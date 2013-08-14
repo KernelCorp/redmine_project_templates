@@ -64,16 +64,35 @@ module ProjectsControllerPatch
            @issue_custom_fields = IssueCustomField.sorted.all
            @trackers = Tracker.sorted.all
            begin
-            @source_project = Project.find(params[:project][:template_id])
+           @source_project = Project.find(params[:project][:template_id])
+
+
+           if request.get?
+             @project = Project.copy_from(@source_project)
+             @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
+           else
+             Mailer.with_deliveries(params[:notifications] == '1') do
+               @project = Project.new
+               @project.safe_attributes = params[:project]
+               if validate_parent_id && @project.copy(@source_project, :only => params[:only])
+                 @project.is_template = false
+                 @project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
+                 flash[:notice] = l(:notice_successful_create)
+                 redirect_to settings_project_path(@project)
+               elsif !@project.new_record?
+                 # Project was created
+                 # But some objects were not copied due to validation failures
+                 # (eg. issues from disabled trackers)
+                 # TODO: inform about that
+                 redirect_to settings_project_path(@project)
+               end
+             end
+           end
+
            rescue ActiveRecord::RecordNotFound
              # source_project not found
              render_404
            end
-
-           @project = Project.copy_from(@source_project)
-           @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
-
-
          end #if
        end
 
