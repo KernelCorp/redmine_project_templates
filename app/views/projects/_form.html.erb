@@ -1,14 +1,14 @@
 <%= error_messages_for 'project' %>
-<%= f.hidden_field :is_template, :value => true%>
+
 <div class="box tabular">
 <!--[form:project]-->
 <p><%= f.text_field :name, :required => true, :size => 60 %></p>
 
 <% unless @project.is_template? %>
   <% if (@project.id.nil?) %>
-    <% templates_map = (@templates.nil?)? [['-', nil]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
-  <% else %>
-    <% templates_map = [[@project.template.id, @project.template.name]] %>
+    <% templates_map = (@templates.nil?) ? [['-', nil]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
+ <% else %>
+    <% templates_map = (!@project.template.nil?) ? [[@project.template.id, @project.template.name]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
   <% end %>
   <p>
     <%= label(:project, :template_id, l(:template)) %>
