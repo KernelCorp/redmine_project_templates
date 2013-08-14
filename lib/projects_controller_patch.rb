@@ -47,6 +47,8 @@ module ProjectsControllerPatch
        def new_with_select_templates
          @templates = Project.where(:is_template => true)
          new_without_select_templates
+         @project.is_template = params[:is_template]
+         @project
        end
 
        def settings_with_select_templates
