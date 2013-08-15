@@ -72,10 +72,9 @@ module ProjectsControllerPatch
              @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
            else
              Mailer.with_deliveries(params[:notifications] == '1') do
-               @project = Project.new
+               @project = Project.new  :template_id => params[:project][:template_id], :is_template => false
                @project.safe_attributes = params[:project]
                if validate_parent_id && @project.copy(@source_project, :only => params[:only])
-                 @project.is_template = false
                  @project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
                  flash[:notice] = l(:notice_successful_create)
                  redirect_to settings_project_path(@project)
