@@ -2,6 +2,7 @@
 
 <div class="box tabular">
 <!--[form:project]-->
+ <%= f.hidden_field :is_template, :value => @project.is_template?%>
 <p><%= f.text_field :name, :required => true, :size => 60 %></p>
 
 <% unless @project.is_template? %>
