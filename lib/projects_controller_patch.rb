@@ -49,7 +49,7 @@ module ProjectsControllerPatch
          @templates = Project.where(:is_template => true)
          new_without_select_templates
          @project.is_template = params[:is_template]
-         @project
+
        end
 
        def settings_with_select_templates
@@ -76,6 +76,15 @@ module ProjectsControllerPatch
                @project.safe_attributes = params[:project]
                if validate_parent_id && @project.copy(@source_project, :only => params[:only])
                  @project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
+                 #subproject copy
+                 @source_project.children.each do |subproject|
+                   subproject_copy = Project.new(:name => subproject.name,
+                                                 :identifier => @project.identifier + '_' + subproject.name  )
+                   subproject_copy.copy(subproject, :only => params[:only])
+                   subproject_copy.set_allowed_parent! @project.id
+
+                 end
+
                  flash[:notice] = l(:notice_successful_create)
                  redirect_to settings_project_path(@project)
                elsif !@project.new_record?
