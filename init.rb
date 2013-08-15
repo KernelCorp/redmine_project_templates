@@ -4,7 +4,7 @@ require 'redmine'
 require_dependency 'project_patch'
 require_dependency 'projects_controller_patch'
 
-Redmine::Plugin.register :project_templates do
+Redmine::Plugin.register :redmine_project_templates do
   name 'Project Templates plugin'
   author 'Author name'
   description 'This is a plugin for Redmine'
