@@ -8,7 +8,8 @@
   <% if (@project.id.nil?) %>
     <% templates_map = (@templates.nil?) ? [['-', nil]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
  <% else %>
-    <% templates_map = (!@project.template.nil?) ? [[@project.template.id, @project.template.name]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
+    <% templates_map = (!@project.template.nil?) ? [[@project.template.name, @project.template.id]] : [['-',
+                                                                                                       nil]] +  @templates.map {|t| [t.name, t.id]} %>
   <% end %>
   <p>
     <%= label(:project, :template_id, l(:template)) %>
