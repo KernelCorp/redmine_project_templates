@@ -15,18 +15,19 @@ module ProjectPatch
 
   end
 
+  module InstanceMethods
+    def copy_from_with_deep_copy(project)
+      copy = copy_from(project)
+      copy.issues = project.issues
+      copy.news = project.news
+      copy.documents = projects.documents
+      copy
+    end
+  end
+
 end
 
 # Add module to Project
 Project.send(:include, ProjectPatch)
 Project.safe_attributes 'is_template', 'start_date'
 
-module InstanceMethods
-	def copy_from_with_deep_copy(project)
-		copy = copy_from(project)
-		copy.issues = project.issues
-		copy.news = project.news
-		copy.documents = projects.documents
-		copy
-	end
-end
