@@ -65,7 +65,8 @@ module ProjectsControllerPatch
            @trackers = Tracker.sorted.all
            begin
            @source_project = Project.find(params[:project][:template_id])
-
+           enabled_module_names = @source_project.enabled_modules.map { |m| m.name}
+           params[:project][:enabled_module_names] |= enabled_module_names
 
            if request.get?
              @project = Project.copy_from(@source_project)
@@ -85,6 +86,8 @@ module ProjectsControllerPatch
 
                  end
                  @project.users = @source_project.users
+
+                 @project.documents = @source_project.documents
                  @project.save!
                  flash[:notice] = l(:notice_successful_create)
                  redirect_to settings_project_path(@project)
