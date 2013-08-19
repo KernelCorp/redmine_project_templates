@@ -84,7 +84,8 @@ module ProjectsControllerPatch
                    subproject_copy.set_allowed_parent! @project.id
 
                  end
-
+                 @project.users = @source_project.users
+                 @project.save!
                  flash[:notice] = l(:notice_successful_create)
                  redirect_to settings_project_path(@project)
                elsif !@project.new_record?
