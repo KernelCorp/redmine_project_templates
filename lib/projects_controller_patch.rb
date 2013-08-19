@@ -67,7 +67,8 @@ module ProjectsControllerPatch
            @source_project = Project.find(params[:project][:template_id])
            enabled_module_names = @source_project.enabled_modules.map { |m| m.name}
            params[:project][:enabled_module_names] |= enabled_module_names
-
+           trackers = @source_project.trackers.map {|t| t.id}
+           params[:project][:tracker_ids] |= trackers
            if request.get?
              @project = Project.copy_from(@source_project)
              @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
