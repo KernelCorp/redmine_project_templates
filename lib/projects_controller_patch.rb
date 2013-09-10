@@ -49,7 +49,7 @@ module ProjectsControllerPatch
          @templates = Project.where(:is_template => true)
          new_without_select_templates
          @project.is_template = params[:is_template]
-         @project
+
        end
 
        def settings_with_select_templates
@@ -57,43 +57,55 @@ module ProjectsControllerPatch
          settings_without_select_templates
        end
 
-		def create_with_template
-			if params[:project][:template_id].blank?
-				create_without_template
-			else
-				@issue_custom_fields = IssueCustomField.sorted.all
-				@trackers = Tracker.sorted.all
-				begin
-				   @source_project = Project.find(params[:project][:template_id])
+       def create_with_template
+         if params[:project][:template_id].blank?
+            create_without_template
+         else
+           @issue_custom_fields = IssueCustomField.sorted.all
+           @trackers = Tracker.sorted.all
+           begin
+           @source_project = Project.find(params[:project][:template_id])
+           enabled_module_names = @source_project.enabled_modules.map { |m| m.name}
+           params[:project][:enabled_module_names] |= enabled_module_names
+           trackers = @source_project.trackers.map {|t| t.id}
+           params[:project][:tracker_ids] |= trackers
+           if request.get?
+             @project = Project.copy_from(@source_project)
+             @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
+           else
+             Mailer.with_deliveries(params[:notifications] == '1') do
+               @project = Project.new  :template_id => params[:project][:template_id], :is_template => false
+               @project.safe_attributes = params[:project]
+               if validate_parent_id && @project.copy(@source_project, :only => params[:only])
+                 @project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
+                 #subproject copy
+                 @source_project.children.each do |subproject|
+                   subproject_copy = Project.new(:name => subproject.name,
+                                                 :identifier => @project.identifier + '_' + subproject.name  )
+                   subproject_copy.copy(subproject, :only => params[:only])
+                   subproject_copy.set_allowed_parent! @project.id
 
-   				if request.get?
-   				  @project = Project.copy_from(@source_project)
-   				  @project.identifier = Project.next_identifier if Setting.sequential_project_identifiers?
-   				else
-   					Mailer.with_deliveries(params[:notifications] == '1') do
-   						@project = Project.new  :template_id => params[:project][:template_id], :is_template => false
-   						@project.safe_attributes = params[:project]
-   					   name = Project.find(params[:project][:template_id]).name
-                     name.gsub! /<name>/, params[:project][:name]
-                     @project.name = name
-   						if validate_parent_id && @project.copy(@source_project, :only => params[:only])
-	   						@project.set_allowed_parent!(params[:project]['parent_id']) if params[:project].has_key?('parent_id')
-   							flash[:notice] = l(:notice_successful_create)
-   							redirect_to settings_project_path(@project)
-   						elsif !@project.new_record?
-   							# Project was created
-   							# But some objects were not copied due to validation failures
-   							# (eg. issues from disabled trackers)
-   							# TODO: inform about that
-   							redirect_to settings_project_path(@project)
-   						end
-	   				end
-   				end
+                 end
+                 @project.users = @source_project.users
 
-	         rescue ActiveRecord::RecordNotFound
-					# source_project not found
-					render_404
-            end
+                 @project.documents = @source_project.documents
+                 @project.save!
+                 flash[:notice] = l(:notice_successful_create)
+                 redirect_to settings_project_path(@project)
+               elsif !@project.new_record?
+                 # Project was created
+                 # But some objects were not copied due to validation failures
+                 # (eg. issues from disabled trackers)
+                 # TODO: inform about that
+                 redirect_to settings_project_path(@project)
+               end
+             end
+           end
+
+           rescue ActiveRecord::RecordNotFound
+             # source_project not found
+             render_404
+           end
          end #if
        end
 
