@@ -12,6 +12,10 @@ Redmine::Plugin.register :redmine_project_templates do
   url 'https://github.com/KernelCorp/redmine_project_templates.git'
   author_url 'http://kerweb.ru'
 
+  #project_module :redmine_project_templates do
+    #permission :get_module_names, { :projects => :get_module_names }, :require => :loggedin, :public => true
+    #permission :get_module_names, { :spike_for_module_names => :get_module_names }, :require => :loggedin, :public => true
+  #end
 
   menu :top_menu, :templates, { :controller => 'projects', :action => 'index', :is_template => 'true' },
       :caption => :templates

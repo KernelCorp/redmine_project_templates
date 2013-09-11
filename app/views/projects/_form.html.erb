@@ -9,8 +9,11 @@
   <% if (@project.id.nil?) %>
     <% templates_map = (@templates.nil?) ? [['-', nil]] : [['-', nil]] +  @templates.map {|t| [t.name, t.id]} %>
  <% else %>
-    <% templates_map = (!@project.template.nil?) ? [[@project.template.name, @project.template.id]] : [['-',
-                                                                                                       nil]] +  @templates.map {|t| [t.name, t.id]} %>
+	 <%
+			templates_map = (!@project.template.nil?) ?
+				[[@project.template.name, @project.template.id]] :
+				[['-', nil]] +  @templates.map {|t| [t.name, t.id] }
+	 %>
   <% end %>
   <p>
     <%= label(:project, :template_id, l(:template)) %>
@@ -57,6 +60,24 @@
 </fieldset>
 <% end %>
 
+<%= javascript_tag do %>
+	$("#project_template_id").change(function(e) {
+		$.ajax({
+			url: "/module_names/for_project/" + e.originalEvent.explicitOriginalTarget.value,
+			type: "get",
+			success: function(b) {
+				$("[id^='project_enabled_module_names_']").attr("checked", false);
+				for(var i = 0, l = b.modules_names.length; i < l; i++) {
+					$("#project_enabled_module_names_" + b.modules_names[i]).attr("checked", true);
+				}
+			},
+			error: function(error) {
+				console.log(error);
+			}
+		})
+	});
+<% end %>
+
 <% if @project.new_record? || @project.module_enabled?('issue_tracking') %>
 <% unless @trackers.empty? %>
 <fieldset class="box tabular" id="project_trackers"><legend><%=l(:label_tracker_plural)%></legend>
@@ -89,6 +110,7 @@
     <%= javascript_include_tag 'project_identifier' %>
   <% end %>
 <% end %>
+
 
 <% if !User.current.admin? && @project.inherit_members? && @project.parent && User.current.member_of?(@project.parent) %>
   <%= javascript_tag do %>
