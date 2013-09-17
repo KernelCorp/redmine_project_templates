@@ -3,8 +3,8 @@ class SpikeForModuleNamesController < ApplicationController
 		if params[:id].blank?
 			render :json => { :nothing => "to return" }
 		end
-		enabled_modules_names = Project.find(params[:id]).enabled_modules.map do |m| m.name end
-		render :json => { :modules_names => enabled_modules_names }
+		project = Project.find(params[:id])
+		render :json => { :modules_names => project.enabled_module_names, :trackers => project.tracker_ids }
 	rescue
 		render :json => { :nothing => "to return"}
 	end

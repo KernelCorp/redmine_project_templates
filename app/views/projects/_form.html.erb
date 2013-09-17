@@ -62,13 +62,16 @@
 
 <%= javascript_tag do %>
 	$("#project_template_id").change(function(e) {
-		$.ajax({
-			url: "/module_names/for_project/" + e.originalEvent.explicitOriginalTarget.value,
+		!e.target.value || $.ajax({
+			url: "/module_names/for_project/" + e.target.value,
 			type: "get",
 			success: function(b) {
-				$("[id^='project_enabled_module_names_']").attr("checked", false);
+				$("[id^='project_enabled_module_names_'], [id^='project_trackers_']").attr("checked", false);
 				for(var i = 0, l = b.modules_names.length; i < l; i++) {
 					$("#project_enabled_module_names_" + b.modules_names[i]).attr("checked", true);
+				}
+				for(var i = 0, l = b.trackers.length; i < l; i++) {
+					$("#project_trackers_" + b.trackers[i]).attr("checked", true);
 				}
 			},
 			error: function(error) {
@@ -83,7 +86,7 @@
 <fieldset class="box tabular" id="project_trackers"><legend><%=l(:label_tracker_plural)%></legend>
 <% @trackers.each do |tracker| %>
     <label class="floating">
-    <%= check_box_tag 'project[tracker_ids][]', tracker.id, @project.trackers.include?(tracker) %>
+		 <%= check_box_tag 'project[tracker_ids][]', tracker.id, @project.trackers.include?(tracker), :id => "project_trackers_#{tracker.id}" %>
     <%=h tracker %>
     </label>
 <% end %>

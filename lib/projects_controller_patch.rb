@@ -55,16 +55,12 @@ module ProjectsControllerPatch
 			settings_without_select_templates
 		end
 
+		# Not working yet(see spike for it in controllers)
 		def get_enabled_modules_names_for_project
-			debugger
-			if params[:id].blank?
-				render :json, { :nothing => "to return" }
-			end
-			enabled_modules_names = Project.find(params[:id]).enabled_modules.map do |m| m.name end
-			render :json, { :modules_names => enabled_modules_names }
+			render :json => { :hello => "world" }
 		end
 
-		def create_with_template
+		def create_with_template	
 			if params[:project][:template_id].blank?
 				create_without_template
 			else
@@ -100,13 +96,11 @@ module ProjectsControllerPatch
 								# Set valid date to issues
 								template_date = @source_project[:start_date]
 								if params[:project][:start_date].blank? or template_date.blank?
-									debugger
 									@project.issues.each do |i|
 										i.start_date = nil
 										i.save
 									end
 								else
-									debugger
 									delta_date = params[:project][:start_date].to_date - template_date
 									@project.issues.each do |i|
 										i.start_date += delta_date
