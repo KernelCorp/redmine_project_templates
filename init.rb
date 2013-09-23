@@ -3,6 +3,7 @@ require 'redmine'
 # Patches to the Redmine core.  Will not work in development mode
 require_dependency 'project_patch'
 require_dependency 'projects_controller_patch'
+require_dependency 'welcome_controller_patch'
 
 Redmine::Plugin.register :redmine_project_templates do
   name 'Project Templates plugin'

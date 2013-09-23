@@ -9,6 +9,7 @@ module ProjectPatch
 			belongs_to    :template, class_name: 'Project'
 			has_many :projects, class_name: 'Project',
 				foreign_key: 'template_id'
+      scope :not_template, ->(){where is_template: false}
 		end
 	end
 end
